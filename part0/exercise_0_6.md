@@ -1,6 +1,7 @@
+# Exercise 0.6
+
 ```mermaid
 sequenceDiagram
-title Exercise 0.6 
   participant browser
   participant server
 

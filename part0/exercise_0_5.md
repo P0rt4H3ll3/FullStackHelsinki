@@ -1,3 +1,5 @@
+# Exercise 0.5
+
 ```mermaid
 sequenceDiagram
   participant browser
@@ -27,6 +29,6 @@ sequenceDiagram
 
   Note right of browser: The browser executes the event handler that renders the notes
 
-  
+
 
 ```
