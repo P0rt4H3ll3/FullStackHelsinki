@@ -1,5 +1,4 @@
 const Content = (props) => {
-  console.log(props);
   const contentList = props.parts.map((item) => {
     return (
       <li>
