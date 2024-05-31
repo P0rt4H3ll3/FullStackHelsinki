@@ -8,28 +8,21 @@ const App = () => {
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
 
-  const updateGood = () => {
-    const goodUpdated = good + 1;
-    return setGood(goodUpdated);
-  };
-
-  const updateNeutral = () => {
-    const neutralUpdated = neutral + 1;
-    return setNeutral(neutralUpdated);
-  };
-
-  const updateBad = () => {
-    const badUpdated = bad + 1;
-    return setBad(badUpdated);
+  const updateCount = (feedback, updateFunc) => {
+    const feedbackUpdate = feedback + 1;
+    return updateFunc(feedbackUpdate);
   };
 
   return (
     <>
       <div>
         <h1>give feedback</h1>
-        <Button onClick={updateGood} text="good" />
-        <Button onClick={updateNeutral} text="neutral" />
-        <Button onClick={updateBad} text="bad" />
+        <Button onClick={() => updateCount(good, setGood)} text="good" />
+        <Button
+          onClick={() => updateCount(neutral, setNeutral)}
+          text="neutral"
+        />
+        <Button onClick={() => updateCount(bad, setBad)} text="bad" />
       </div>
       <div>
         <h1>statistics</h1>
