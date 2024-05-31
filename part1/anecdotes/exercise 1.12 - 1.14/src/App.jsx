@@ -31,11 +31,18 @@ function App() {
     setVote(newVote);
   };
 
+  const indexOfMax = vote.indexOf(Math.max(...vote));
+
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
       <Button onClick={() => selectRandom()} text="next ancedote" />
       <Button onClick={() => voteAnecdote()} text="vote" />
+      <h1>Anecdote with most votes</h1>
+      <p>
+        {anecdotes[indexOfMax]} has {Math.max(...vote)} votes
+      </p>
     </div>
   );
 }
