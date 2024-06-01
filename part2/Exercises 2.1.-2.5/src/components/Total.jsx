@@ -3,7 +3,9 @@ const Total = (props) => {
   const totalNumber = exerciseNumArr.reduce((numAdd, x) => x + numAdd);
   return (
     <>
-      <p>Number of exercises {totalNumber}</p>
+      <p>
+        <b>toal of {totalNumber} exercises</b>
+      </p>
     </>
   );
 };

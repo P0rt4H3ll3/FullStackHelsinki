@@ -1,17 +1,5 @@
 import React from "react";
-import Header from "./components/Header";
-import Content from "./components/Content";
-import Total from "./components/Total";
-
-const Course = ({ course }) => {
-  return (
-    <>
-      <Header course={course.name} />
-      <Content parts={course.parts} />
-      <Total exerciseTotal={course.parts} />
-    </>
-  );
-};
+import Course from "./components/Course";
 
 const App = () => {
   const course = {
@@ -32,6 +20,11 @@ const App = () => {
         name: "State of a component",
         exercises: 14,
         id: 3,
+      },
+      {
+        name: "Redux",
+        exercises: 11,
+        id: 4,
       },
     ],
   };
