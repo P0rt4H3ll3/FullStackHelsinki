@@ -26,6 +26,7 @@ function App() {
   };
 
   const voteAnecdote = () => {
+    //here the use of onClick={voteAnecdote} is ok because i did not have to pass args into the function below are to examples of what i had to do if i had to pass args in
     const newVote = [...vote];
     newVote[selected] += 1;
     setVote(newVote);
