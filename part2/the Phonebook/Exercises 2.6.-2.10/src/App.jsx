@@ -5,14 +5,27 @@ const App = () => {
   const [persons, setPersons] = useState([{ name: "Arto Hellas" }]);
   const [newName, setNewName] = useState("");
 
+  const isDuplicate = (personObject) => {
+    const propationaryNewName = persons.concat(personObject);
+    const checkValues = new Set(propationaryNewName.map((v) => v.name));
+    if (checkValues.size < propationaryNewName.length) {
+      console.log("duplicate found");
+      return true;
+    }
+  };
   const addPerson = (event) => {
     event.preventDefault();
     const personObject = {
       name: newName,
       //id: persons.length,
     };
-    setPersons(persons.concat(personObject));
-    setNewName("");
+    if (isDuplicate(personObject)) {
+      alert(`${personObject.name} is already added to phonebook`);
+      setNewName("");
+    } else {
+      setPersons(persons.concat(personObject));
+      setNewName("");
+    }
   };
 
   const handleNameChange = (event) => {
@@ -22,11 +35,6 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <ul>
-        {persons.map((person) => (
-          <Person key={person.name} person={person} />
-        ))}
-      </ul>
       <form onSubmit={addPerson}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />
@@ -36,7 +44,11 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      ...
+      <ul>
+        {persons.map((person) => (
+          <Person key={person.name} person={person} />
+        ))}
+      </ul>
     </div>
   );
 };
