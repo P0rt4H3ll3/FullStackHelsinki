@@ -5,7 +5,7 @@ const Content = ({ parts }) => {
     <>
       {parts.map((item) => {
         return (
-          <Part key={parts.id} item={item} />
+          <Part key={item.id} item={item} />
           //JSX elements directly inside a map() call always need keys!
         );
       })}
