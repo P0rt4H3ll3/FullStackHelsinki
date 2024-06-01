@@ -1,12 +1,12 @@
-const Total = (props) => {
-  const exerciseNumArr = props.exerciseTotal.map((num) => num.exercises);
-  const totalNumber = exerciseNumArr.reduce((numAdd, x) => x + numAdd);
+const Total = ({ parts }) => {
   return (
-    <>
-      <p>
-        <b>toal of {totalNumber} exercises</b>
-      </p>
-    </>
+    <p>
+      <b>
+        total of{" "}
+        {parts.reduce((addNum, current) => addNum + current.exercises, 0)}{" "}
+        exercises
+      </b>
+    </p>
   );
 };
 

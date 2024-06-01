@@ -46,11 +46,13 @@ const App = () => {
       ],
     },
   ];
-
+  //JSX elements directly inside a map() call always need keys!
   return (
     <div>
       <h1>Web development curriculum</h1>
-      <Course courses={courses} id={courses.id} />
+      {courses.map((course) => (
+        <Course key={courses.id} course={course} />
+      ))}
     </div>
   );
 };
