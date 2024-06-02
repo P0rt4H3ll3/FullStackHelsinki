@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import Person from "./Person";
+import Filter from "./Filter";
+import PersonForm from "./PersonForm";
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -69,37 +71,18 @@ const App = () => {
     setSearchName(event.target.value);
   };
 
-  /*
-  const displaySearch = () => {
-    console.log(matchName);
-    if (matchName) {
-      matchName.map((person) => <Person key={person.name} person={person} />);
-    } else {
-      persons.map((person) => <Person key={person.name} person={person} />);
-    }
-  };
-  */
-
   return (
     <div>
       <h2>Phonebook</h2>
-      <div>
-        filter shown with
-        <input value={searchName} onChange={handleSearchName} />
-      </div>
-
-      <h2>add a new</h2>
-      <form onSubmit={addData}>
-        <div>
-          name: <input value={newName} onChange={handleNewName} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNewNumber} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <Filter searchName={searchName} handleSearchName={handleSearchName} />
+      <h2>Add a new</h2>
+      <PersonForm
+        addData={addData}
+        newName={newName}
+        handleNewName={handleNewName}
+        newNumber={newNumber}
+        handleNewNumber={handleNewNumber}
+      />
       <h2>Numbers</h2>
       <ul>
         {matchName.map((person) => (
