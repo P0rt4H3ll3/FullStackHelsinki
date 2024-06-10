@@ -13,6 +13,7 @@ const App = () => {
   const [searchName, setSearchName] = useState("");
   const [matchName, setMatchName] = useState(persons);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     //display search names
@@ -92,7 +93,12 @@ const App = () => {
           setPersons(persons.filter((n) => n.id !== person.id));
         })
         .catch((error) => {
-          console.log(`something failed in deleting the data`);
+          setErrorMessage(
+            `Information of ${person.name} has already been removed from the server`
+          );
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
         });
     }
   };
@@ -150,7 +156,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={successMessage} />
+      <Notification message={successMessage} isError={false} />
+      <Notification message={errorMessage} isError={true} />
       <Filter searchName={searchName} handleSearchName={handleSearchName} />
       <h2>Add a new</h2>
       <PersonForm
