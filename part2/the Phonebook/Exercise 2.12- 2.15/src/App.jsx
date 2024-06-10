@@ -36,6 +36,14 @@ const App = () => {
       return true;
     }
   };
+  const deleteData = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      updateService.deleteEntry(person.id).then((deletedPhoneEntry) => {
+        setPersons(persons.filter((n) => n.id !== person.id));
+      });
+    }
+  };
+
   const addData = (event) => {
     event.preventDefault();
     // first verify that imput fields are not empty to avoid adding empty names
@@ -92,7 +100,7 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {matchName.map((person) => (
-          <Person key={person.name} person={person} />
+          <Person key={person.name} person={person} deleteData={deleteData} /> // hier nochmal gucken Key vllt als person.id is mehr unique identifier ?
         ))}
       </ul>
     </div>
