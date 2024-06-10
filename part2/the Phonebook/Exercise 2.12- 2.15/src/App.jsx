@@ -13,6 +13,7 @@ const App = () => {
   const [matchName, setMatchName] = useState(persons);
 
   useEffect(() => {
+    //display search names
     setMatchName(
       persons.filter((person) =>
         person.name.toLowerCase().includes(searchName.toLowerCase())
@@ -21,10 +22,97 @@ const App = () => {
   }, [searchName, persons]);
 
   useEffect(() => {
+    // display initial phonebook
     updateService.getAll().then((initialPhonebook) => {
       setPersons(initialPhonebook);
     });
   }, []);
+
+  const addData = (event) => {
+    event.preventDefault();
+    // first verify that imput fields are not empty to avoid adding empty names
+    if (newName.trim() == "" || newNumber.trim() == "") {
+      !newName && !newNumber
+        ? alert("you have to input a Name and Number")
+        : !newNumber
+        ? alert("you have to input a Number")
+        : alert("you have to input a Name");
+    } else {
+      // if input fields !empty than greate a object with person to be added to Phonebook
+      const dataObject = {
+        // (no id, is handled by backend)
+        name: newName,
+        number: newNumber,
+      };
+      //check if name already exists
+      if (isDuplicate(dataObject.name)) {
+        if (
+          // if name already exists, warn user and ask if want to update
+          window.confirm(
+            `${dataObject.name} is already added to phonebook, replace the old number with a new one ?`
+          )
+        ) {
+          //confirmed so update data
+          updateData(dataObject);
+        } else {
+          // do not want to update and not want to have duplicate so delete name and number
+          resetTextField();
+        }
+      } else {
+        // if not duplicate, create a new entry
+        creatingData(dataObject);
+      }
+    }
+  };
+
+  const creatingData = (dataObject) => {
+    updateService
+      .create(dataObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson)); //setPerson([...persons, returnedPerson]) spread operator also for new Array
+        resetTextField();
+      })
+      .catch((error) => {
+        console.log(`something failed in adding the data`);
+      });
+  };
+
+  const deleteData = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      updateService
+        .deleteEntry(person.id) //need the id to delete the right entry
+        .then((deletedPhoneEntry) => {
+          // update function for state persons, find all persons without the delete ID and update the Persons array with them
+          setPersons(persons.filter((n) => n.id !== person.id));
+        })
+        .catch((error) => {
+          console.log(`something failed in deleting the data`);
+        });
+    }
+  };
+
+  const updateData = (dataObject) => {
+    // Name is already in Persons ( duplicate is true) and want to update, find the person in persons
+    const entryToUpdate = persons.find(
+      (person) => person.name == dataObject.name
+    );
+    const updatedEntry = { ...entryToUpdate, number: dataObject.number }; // create a new updated Object (updated Entry)
+    updateService
+      .update(entryToUpdate.id, updatedEntry)
+      .then((updatedPerson) => {
+        setPersons(
+          persons.map(
+            (
+              person // make a new array of all the not updated, and the updated and then use the state update function to update persons array
+            ) => (person.id !== updatedPerson.id ? person : updatedPerson)
+          )
+        );
+        resetTextField();
+      })
+      .catch((error) => {
+        console.log(`something failed in updating the data`);
+      });
+  };
 
   const isDuplicate = (personName) => {
     // checking if name already exists in Persons Usestate Array
@@ -36,42 +124,10 @@ const App = () => {
       return true;
     }
   };
-  const deleteData = (person) => {
-    if (window.confirm(`Delete ${person.name} ?`)) {
-      updateService.deleteEntry(person.id).then((deletedPhoneEntry) => {
-        setPersons(persons.filter((n) => n.id !== person.id));
-      });
-    }
-  };
 
-  const addData = (event) => {
-    event.preventDefault();
-    // first verify that imput fields are not empty to avoid adding empty names
-    if (newName.trim() == "" || newNumber.trim() == "") {
-      !newName && !newNumber
-        ? alert("you have to input a Name and Number")
-        : !newNumber
-        ? alert("you have to input a Number")
-        : alert("you have to input a Name");
-      return true;
-    } else {
-      const dataObject = {
-        // new object to add to phonebook, (no id, is handled by backend)
-        name: newName,
-        number: newNumber,
-      };
-      if (isDuplicate(dataObject.name)) {
-        alert(`${dataObject.name} is already added to phonebook`);
-        setNewName("");
-        setNewNumber("");
-      } else {
-        updateService.create(dataObject).then((returnedPerson) => {
-          setPersons(persons.concat(returnedPerson)); //setPerson([...persons, returnedPerson]) spread operator also for new Array
-          setNewName("");
-          setNewNumber("");
-        });
-      }
-    }
+  const resetTextField = () => {
+    setNewName("");
+    setNewNumber("");
   };
 
   const handleNewName = (event) => {
