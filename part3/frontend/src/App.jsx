@@ -25,9 +25,20 @@ const App = () => {
 
   useEffect(() => {
     // display initial phonebook
-    updateService.getAll().then((initialPhonebook) => {
-      setPersons(initialPhonebook);
-    });
+    updateService
+      .getAll()
+      .then((initialPhonebook) => {
+        setPersons(initialPhonebook);
+      })
+      .catch((error) => {
+        setErrorMessage("Entries could not be loaded");
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setSuccessMessage(null);
+          setErrorMessage(null);
+        }, 10000);
+      });
   }, []);
 
   const addData = (event) => {
@@ -68,19 +79,21 @@ const App = () => {
   };
 
   const creatingData = (dataObject) => {
-    console.log("this is App ceatingData, dataObject: ", dataObject);
     updateService
       .create(dataObject)
       .then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson)); //setPerson([...persons, returnedPerson]) spread operator also for new Array
         resetTextField();
         setSuccessMessage(`Added ${returnedPerson.name}`);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
       })
       .catch((error) => {
-        console.log(`something failed in adding the data`);
+        setErrorMessage(error.response.data.error);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setSuccessMessage(null);
+          setErrorMessage(null);
+        }, 10000);
       });
   };
 
@@ -92,17 +105,17 @@ const App = () => {
           // update function for state persons, find all persons without the delete ID and update the Persons array with them
           setPersons(persons.filter((n) => n.id !== person.id));
           setErrorMessage(`${person.name} was deleted`);
-          setTimeout(() => {
-            setErrorMessage(null);
-          }, 5000);
         })
         .catch((error) => {
           setErrorMessage(
             `Information of ${person.name} has already been removed from the server`
           );
+        })
+        .finally(() => {
           setTimeout(() => {
+            setSuccessMessage(null);
             setErrorMessage(null);
-          }, 5000);
+          }, 10000);
         });
     }
   };
@@ -123,10 +136,19 @@ const App = () => {
             ) => (person.id !== updatedPerson.id ? person : updatedPerson)
           )
         );
+        setSuccessMessage(
+          `Number of ${updatedPerson.name} was successfully updated`
+        );
         resetTextField();
       })
       .catch((error) => {
-        console.log(`something failed in updating the data`);
+        setErrorMessage(`something failed in updating the data`);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setSuccessMessage(null);
+          setErrorMessage(null);
+        }, 10000);
       });
   };
 
