@@ -142,7 +142,7 @@ const App = () => {
         resetTextField();
       })
       .catch((error) => {
-        setErrorMessage(`something failed in updating the data`);
+        setErrorMessage(error.response.data.error);
       })
       .finally(() => {
         setTimeout(() => {
