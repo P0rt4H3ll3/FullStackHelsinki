@@ -26,7 +26,7 @@ app.use(express.static('dist'))
 app.use(express.json()) //Parses incoming requests with JSON payloads.
 app.use(middleware.requestLogger)
 
-app.use('/api/bloglist', blogsRouter) //Mounts the nameRouter middleware at the '/api/things' path, handling routes related to things.
+app.use('/api/blogs', blogsRouter) //Mounts the nameRouter middleware at the '/api/things' path, handling routes related to things.
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
