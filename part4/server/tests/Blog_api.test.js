@@ -57,6 +57,35 @@ test('HTTP POST request, verify that the number increased', async () => {
   assert(titles.includes('my new blog post'))
 })
 
+test('add Blog with no likes propperty, likes should be 0', async () => {
+  const newBlog = {
+    title: 'my without likes blog post',
+    author: 'lycheephil',
+    url: 'https://websiteofwonders5.de'
+  }
+  const withoutLikesResponse = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  //checking the  Response Directly = Unit Testing ?
+  //confirms that the server logic adds the like property
+  // but the DB is not checked
+  assert.strictEqual(withoutLikesResponse.body.likes, 0)
+
+  //Checking DB = Integration Testing ?
+  //Ensures that the blog post is actually saved correctly in the database.
+  //Involves an extra database query and more lines of code = more complex
+
+  const blogsInDbAtEnd = await blogsInDb()
+  const addedBlog = blogsInDbAtEnd.find(
+    (blog) => blog.id === withoutLikesResponse.body.id
+  )
+  assert.strictEqual(blogsInDbAtEnd.length, initialBlogs.length + 1)
+  assert.strictEqual(addedBlog.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
