@@ -9,6 +9,7 @@ const api = supertest(app)
 const { initialBlogs, blogsInDb } = require('./test_helper')
 const Blog = require('../models/Blog')
 const { resolve } = require('node:path')
+const { addAbortListener } = require('node:events')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -86,6 +87,31 @@ test('add Blog with no likes propperty, likes should be 0', async () => {
   assert.strictEqual(addedBlog.likes, 0)
 })
 
+test('add Blog with no title, return 400', async () => {
+  const newBlog = {
+    author: 'lycheephil',
+    url: 'https://websiteofwonders6.de',
+    likes: 100
+  }
+  const response = await api.post('/api/blogs').send(newBlog).expect(400)
+
+  const dbAfterAddAttempt = await blogsInDb()
+
+  assert(dbAfterAddAttempt.length, initialBlogs.length)
+})
+
+test('add Blog with no Url, return 400', async () => {
+  const newBlog = {
+    title: 'my without Url blog post',
+    author: 'lycheephil',
+    likes: 100
+  }
+  const response = await api.post('/api/blogs').send(newBlog).expect(400)
+
+  const dbAfterAddAttempt = await blogsInDb()
+
+  assert(dbAfterAddAttempt.length, initialBlogs.length)
+})
 after(async () => {
   await mongoose.connection.close()
 })
