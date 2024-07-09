@@ -5,22 +5,19 @@ const initialBlogs = [
     title: 'my inital Blog post #1',
     author: 'bananenphil',
     url: 'https://websiteofwonders1.de',
-    likes: 3,
-    id: '668136670258789e83f00191'
+    likes: 3
   },
   {
     title: 'my inital Blog post #2',
     author: 'apfelphil',
     url: 'https://websiteofwonders2.de',
-    likes: 56,
-    id: '6681367f0258789e83f00193'
+    likes: 56
   },
   {
     title: 'my inital Blog post #3',
     author: 'kiwiphil',
     url: 'https://websiteofwonders3.de',
-    likes: 2,
-    id: '6681368b0258789e83f00195'
+    likes: 2
   }
 ]
 
