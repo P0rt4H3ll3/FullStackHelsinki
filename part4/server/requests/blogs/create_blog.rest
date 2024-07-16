@@ -1,0 +1,22 @@
+# this works, now the returned object has a user and the user will have the blog in the blogs array
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "another blog post",
+  "author": "bananenphil-two",
+  "url": "https://websiteofwonders2.de",
+  "likes": 13,
+  "userId": "66953445357f884187d23968"
+}
+###
+#does not work anymore because we need the userId
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "my third blog post",
+  "author": "bananenphil",
+  "url": "https://websiteofwonders2.de",
+  "likes": 2
+}

@@ -1,7 +1,8 @@
 //This file is an Express router module that defines several routes for interacting with a MongoDB collection using the Mongoose ORM.
 
 const blogsRouter = require('express').Router()
-const Blog = require('../models/Blog')
+const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({})
@@ -9,12 +10,21 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const body = request.body
+  const user = await User.findById(body.userId) //userId has do be provided inside the request to find the user
+  const blog = new Blog({
+    ...request.body,
+    user: user.id
+  })
   if (!blog.url || !blog.title) {
     response.status(400).end()
   }
   if (!blog.likes) blog.likes = 0
+
   const addedBlog = await blog.save()
+  user.blogs = user.blogs.concat(addedBlog._id) // user.blogs is the array of blogs the user has posted, the just posted blog id is added using concat or spread operator to generat new array, does not change existing array
+  await user.save()
+
   response.status(201).json(addedBlog)
 })
 
