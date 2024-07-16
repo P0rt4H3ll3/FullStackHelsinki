@@ -6,6 +6,7 @@ require('express-async-errors') //eliminate the try-catch blocks completely
 const cors = require('cors') //Imports the CORS middleware for handling Cross-Origin Resource Sharing.
 const blogsRouter = require('./controllers/blogs') //Imports the router module that defines routes related to things.
 const usersRouter = require('./controllers/users')
+const loginRouter = require('./controllers/login')
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose') //Imports the Mongoose library for MongoDB interactions
@@ -30,6 +31,7 @@ app.use(middleware.requestLogger)
 
 app.use('/api/blogs', blogsRouter) //Mounts the nameRouter middleware at the '/api/things' path, handling routes related to things. routes can be found in controllers/routes.js
 app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
