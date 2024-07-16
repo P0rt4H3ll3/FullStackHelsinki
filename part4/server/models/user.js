@@ -4,7 +4,8 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: true, // The unique Option is Not a Validator cannot use the custome error message with array syntax, have to use the custome middleware to catch the 'MongoServerError: E11000 duplicate key error collection' error
+    minLength: [3, 'Username {VALUE} must have at least 3 characters'] // Custom Error Messages with Array synthax only for individual validators in your schema., Mongoose also supports rudimentary templating for error messages. Mongoose replaces {VALUE} with the value being validated.
   },
   name: String,
   passwordHash: String,

@@ -2,16 +2,24 @@ const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 
 const api = supertest(app)
 
-const { initialBlogs, blogsInDb } = require('./test_helper')
+const { initialBlogs, blogsInDb, usersInDb } = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(initialBlogs)
+  await User.deleteMany({})
+
+  const passwordHash = await bcrypt.hash('P4$$w0rd', 10)
+  const user = new User({ username: 'root', passwordHash })
+
+  await user.save()
 })
 
 describe('Get Requests to DB', () => {
@@ -41,12 +49,16 @@ describe('everything concerning IDs of blogs', () => {
 
 describe('Everything about adding Blogs with or without properties', () => {
   test('HTTP POST request, verify that the number increased', async () => {
+    const rootUserId = (await usersInDb()).map((user) => user.id)
+
     const newBlog = {
       title: 'my new blog post',
       author: 'avocadophil',
       url: 'https://websiteofwonders4.de',
-      likes: 100
+      likes: 100,
+      userId: rootUserId
     }
+
     await api
       .post('/api/blogs')
       .send(newBlog)
@@ -62,10 +74,12 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no likes propperty, likes should be 0', async () => {
+    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       title: 'my without likes blog post',
       author: 'lycheephil',
-      url: 'https://websiteofwonders5.de'
+      url: 'https://websiteofwonders5.de',
+      userId: rootUserId
     }
     const withoutLikesResponse = await api
       .post('/api/blogs')
@@ -91,12 +105,14 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no title, return 400', async () => {
+    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       author: 'lycheephil',
       url: 'https://websiteofwonders6.de',
-      likes: 100
+      likes: 100,
+      userId: rootUserId
     }
-    const response = await api.post('/api/blogs').send(newBlog).expect(400)
+    await api.post('/api/blogs').send(newBlog).expect(400)
 
     const dbAfterAddAttempt = await blogsInDb()
 
@@ -104,10 +120,12 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no Url, return 400', async () => {
+    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       title: 'my without Url blog post',
       author: 'lycheephil',
-      likes: 100
+      likes: 100,
+      userId: rootUserId
     }
     const response = await api.post('/api/blogs').send(newBlog).expect(400)
 
