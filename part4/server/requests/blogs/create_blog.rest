@@ -3,11 +3,11 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "another blog post",
-  "author": "bananenphil-two",
-  "url": "https://websiteofwonders2.de",
-  "likes": 13,
-  "userId": "66953445357f884187d23968"
+  "title": "another last blog post",
+  "author": "bananenphil-4",
+  "url": "https://websiteofwonders3.de",
+  "likes": 15,
+  "userId": "66964c313c399a7a0a37b7d6"
 }
 ###
 #does not work anymore because we need the userId
