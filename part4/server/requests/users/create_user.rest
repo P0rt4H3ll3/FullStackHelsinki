@@ -2,7 +2,7 @@ POST http://localhost:3003/api/users
 Content-Type: application/json
 
 {
-  "username": "PhillipForLogin",
-  "name": "This is my name",
+  "username": "user",
+  "name": "user manila",
   "password": "12345"
 }

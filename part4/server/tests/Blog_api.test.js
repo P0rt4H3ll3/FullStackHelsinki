@@ -7,19 +7,40 @@ const app = require('../app')
 
 const api = supertest(app)
 
-const { initialBlogs, blogsInDb, usersInDb } = require('./test_helper')
+const { initialBlogs, blogsInDb, initialUsers } = require('./test_helper')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+let rootToken
+let userToken
+
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Blog.insertMany(initialBlogs)
   await User.deleteMany({})
+  await User.insertMany(initialUsers)
 
-  const passwordHash = await bcrypt.hash('P4$$w0rd', 10)
-  const user = new User({ username: 'root', passwordHash })
+  const rootUser = await User.findOne({ username: 'root' })
+  const insertBlogs = initialBlogs.map(
+    (blog) => new Blog({ ...blog, user: rootUser._id })
+  )
+  const saveInitialBlogs = insertBlogs.map((blog) => blog.save())
+  await Promise.all(saveInitialBlogs)
 
-  await user.save()
+  const rootCredentials = {
+    username: 'root',
+    password: 'P4$$w0rd'
+  }
+
+  const userCredentials = {
+    username: 'noPermUser',
+    password: '12345'
+  }
+
+  const rootResponse = await api.post('/api/login').send(rootCredentials)
+  rootToken = rootResponse.body.token
+
+  const userResponse = await api.post('/api/login').send(userCredentials)
+  userToken = userResponse.body.token
 })
 
 describe('Get Requests to DB', () => {
@@ -49,18 +70,16 @@ describe('everything concerning IDs of blogs', () => {
 
 describe('Everything about adding Blogs with or without properties', () => {
   test('HTTP POST request, verify that the number increased', async () => {
-    const rootUserId = (await usersInDb()).map((user) => user.id)
-
     const newBlog = {
       title: 'my new blog post',
       author: 'avocadophil',
       url: 'https://websiteofwonders4.de',
-      likes: 100,
-      userId: rootUserId
+      likes: 100
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -74,15 +93,14 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no likes propperty, likes should be 0', async () => {
-    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       title: 'my without likes blog post',
       author: 'lycheephil',
-      url: 'https://websiteofwonders5.de',
-      userId: rootUserId
+      url: 'https://websiteofwonders5.de'
     }
     const withoutLikesResponse = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -105,14 +123,16 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no title, return 400', async () => {
-    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       author: 'lycheephil',
       url: 'https://websiteofwonders6.de',
-      likes: 100,
-      userId: rootUserId
+      likes: 100
     }
-    await api.post('/api/blogs').send(newBlog).expect(400)
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
+      .send(newBlog)
+      .expect(400)
 
     const dbAfterAddAttempt = await blogsInDb()
 
@@ -120,14 +140,30 @@ describe('Everything about adding Blogs with or without properties', () => {
   })
 
   test('add Blog with no Url, return 400', async () => {
-    const rootUserId = (await usersInDb()).map((user) => user.id)
     const newBlog = {
       title: 'my without Url blog post',
       author: 'lycheephil',
-      likes: 100,
-      userId: rootUserId
+      likes: 100
     }
-    const response = await api.post('/api/blogs').send(newBlog).expect(400)
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${rootToken}`)
+      .send(newBlog)
+      .expect(400)
+
+    const dbAfterAddAttempt = await blogsInDb()
+
+    assert(dbAfterAddAttempt.length, initialBlogs.length)
+  })
+
+  test('add Blog with no token, return 401 Unauthorized', async () => {
+    const newBlog = {
+      title: 'my without token blog post',
+      author: 'Melonephil',
+      url: 'https://websiteofwonders7.de',
+      likes: 111
+    }
+    await api.post('/api/blogs').send(newBlog).expect(401)
 
     const dbAfterAddAttempt = await blogsInDb()
 
@@ -138,10 +174,13 @@ describe('Everything about adding Blogs with or without properties', () => {
 describe('deleting Blogs', () => {
   test('deleting a single blog with valid id', async () => {
     const dbBeforeDelete = await api.get('/api/blogs')
-
     const blogToDelete = dbBeforeDelete.body[0]
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${rootToken}`)
+      .expect(204)
+
     const dbAfterDelete = await api.get('/api/blogs') // how to decide when to use the helper function blogsInDb() and when to query the db
 
     assert.strictEqual(
@@ -151,6 +190,23 @@ describe('deleting Blogs', () => {
 
     const titles = dbAfterDelete.body.map((blog) => blog.title)
     assert(!titles.includes(blogToDelete.title))
+  })
+
+  test('deleting a single blog with invalid id', async () => {
+    const dbBeforeDelete = await api.get('/api/blogs')
+    const blogToDelete = dbBeforeDelete.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .expect(401)
+
+    const dbAfterDelete = await api.get('/api/blogs') // how to decide when to use the helper function blogsInDb() and when to query the db
+
+    assert.strictEqual(dbAfterDelete.body.length, dbBeforeDelete.body.length)
+
+    const titles = dbAfterDelete.body.map((blog) => blog.title)
+    assert(titles.includes(blogToDelete.title))
   })
 })
 
