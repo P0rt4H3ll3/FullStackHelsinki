@@ -1,5 +1,6 @@
 //This file sets up middleware functions and an error handler for an Express application.
 const logger = require('./logger')
+const jwt = require('jsonwebtoken')
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -16,7 +17,17 @@ const unknownEndpoint = (request, response) => {
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
   if (authorization && authorization.startsWith('Bearer ')) {
-    request.token = authorization.replace('Bearer ', '')
+    const token = authorization.replace('Bearer ', '')
+    request.token = token //added new property to the request object
+  }
+  next()
+}
+
+const userExtractor = (request, response, next) => {
+  const token = request.token
+  if (token) {
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    request.user = decodedToken //added new property to the request object
   }
   next()
 }
@@ -46,5 +57,6 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  userExtractor
 }

@@ -29,8 +29,9 @@ app.use(express.static('dist'))
 app.use(express.json()) //Parses incoming requests with JSON payloads.
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
+//app.use(middleware.userExtractor)
 
-app.use('/api/blogs', blogsRouter) //Mounts the nameRouter middleware at the '/api/things' path, handling routes related to things. routes can be found in controllers/routes.js
+app.use('/api/blogs', middleware.userExtractor, blogsRouter) //Mounts the nameRouter middleware at the '/api/things' path, handling routes related to things. routes can be found in controllers/routes.js
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
